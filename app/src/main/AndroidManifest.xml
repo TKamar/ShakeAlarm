@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.tkdev.shakealarm"
+    >
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="20" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-feature
+        android:name="android.hardware.audio.output"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.sensor.accelerometer"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -12,18 +34,127 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShakeAlarm"
         tools:targetApi="31">
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+
+            <!-- If you are using androidx.startup to initialize other components -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
+        <provider
+            android:name=".Classes.MyWorkManagerInitializer"
+            android:authorities="com.tkdev.shakealarm.MyWorkManagerInitializer"
+            android:exported="false" />
+
+        <service
+            android:name=".Services.Service_SnoozeAlarm"
+            android:enabled="true"
+            android:exported="false"/>
+
+        <service
+            android:name=".Services.Service_RingAlarm"
+            android:enabled="true"
+            android:exported="false"/>
+
+        <receiver
+            android:name=".Classes.AlarmBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="com.tkdev.shakealarm.DELIVER_ALARM" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+
         <activity
-            android:name=".MainActivity"
+            android:name=".Activities.Activity_AlarmDetails"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:enabled="true"
+            android:exported="false"
+            android:parentActivityName=".Activities.Activity_AlarmsList" />
+
+        <activity
+            android:name=".Activities.Activity_RingAlarm"
+            android:enabled="true"
+            android:exported="false"
+            android:configChanges="orientation|keyboard"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:screenOrientation="sensorPortrait"
+            android:showOnLockScreen="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
+            android:name=".Activities.Activity_RingtonePicker"
+            android:enabled="true"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.RINGTONE_PICKER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Activities.Activity_Settings"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:enabled="true"
+            android:exported="false"
+            android:parentActivityName=".Activities.Activity_AlarmsList" />
+
+        <service
+            android:name=".Services.Service_UpdateAlarm"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.tkdev.shakealarm.PLUGIN_PERMISSION" />
+
+        <activity android:name=".Activities.Activity_IntentManager"
+            android:enabled="true"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Translucent"
+            android:configChanges="uiMode|orientation|keyboard|colorMode">
+
+            <intent-filter>
+                <action android:name="android.intent.action.DISMISS_ALARM"/>
+                <action android:name="android.intent.action.SET_ALARM"/>
+                <action android:name="android.intent.action.SNOOZE_ALARM"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".Activities.Activity_RequestPerm"
+            android:exported="false"
+            android:enabled="false"/>
+
+
+
+        <activity android:name=".Activities.Activity_AlarmsList"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
+            <intent-filter>
+                <action android:name="android.intent.action.SHOW_ALARMS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
     </application>
 
